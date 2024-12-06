@@ -86,7 +86,9 @@ const SidebarRow = ({page, activePage, updateFavorite}) => {
       <button
         type="button"
         className="flex items-center">
-        {page.title}
+        {clsx(
+          page.title.length > 12 ? page.title.slice(0, 11) + '...' : page.title
+        )}
       </button>
       <svg
         role="graphics-symbol"
