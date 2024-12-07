@@ -5,6 +5,7 @@ import { createOrUpdatePage } from '@/action';
 import { MDXProvider } from '@mdx-js/react';
 import { MDXRemote } from 'next-mdx-remote';
 import { serialize } from 'next-mdx-remote/serialize';
+import {visit} from 'unist-util-visit';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug'; 
 import clsx from 'clsx';
@@ -44,35 +45,50 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
           },
         });
         setSerializedContent(dmxSource);
-        generateToc(dmxSource);
       }
     };
     initializeContent();
   }, [activePage]);
 
   const serializeContent = async (content) => {
+    const tocData = []; // ToC를 저장할 배열
+  
     const mdxSource = await serialize(content, {
-      mdxOptions: { remarkPlugins: [remarkGfm],
-        rehypePlugins: [rehypeSlug], },
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+        rehypePlugins: [
+          rehypeSlug,
+          () => (tree) => { // 커스텀 rehype 플러그인
+            visit(tree, 'element', (node) => {
+              if (['h1', 'h2', 'h3'].includes(node.tagName)) {
+                const textContent = node.children
+                  .filter((child) => child.type === 'text' || child.type === 'element')
+                  .map((child) => {
+                    if (child.type === 'text') return child.value;
+                    if (child.type === 'element') {
+                      return child.children
+                        .filter((grandchild) => grandchild.type === 'text')
+                        .map((grandchild) => grandchild.value)
+                        .join('');
+                    }
+                    return '';
+                  })
+                  .join('');
+  
+                tocData.push({
+                  id: node.properties.id,
+                  text: textContent,
+                  level: node.tagName,
+                });
+              }
+            });
+          },
+        ],
+      },
     });
+  
     setSerializedContent(mdxSource);
-    generateToc(mdxSource);
-  };
-
-  const generateToc = (mdxSource) => {
-    const toc = [];
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(mdxSource.renderedOutput, 'text/html');
-    const headings = doc.querySelectorAll('h1, h2, h3');
-    headings.forEach((heading) => {
-      console.log(heading);
-      toc.push({
-        id: heading.id,
-        text: heading.textContent,
-        level: heading.tagName.toLowerCase(),
-      });
-    });
-    setToc(toc);
+    setToc(tocData); // ToC 상태 업데이트
   };
 
   const handleSave = async (newTitle, newContent) => {
@@ -102,7 +118,7 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
       const newContent = value;
       setContent(newContent);
       handleSave(title, newContent);
-      await serializeContent(newContent);
+      serializeContent(newContent);
       if (onContentChange && pageId) {
         onContentChange(pageId, newContent);
       }
