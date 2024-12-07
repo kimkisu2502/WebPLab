@@ -48,6 +48,7 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
       }
     };
     initializeContent();
+    serializeContent(content);
   }, [activePage]);
 
   const serializeContent = async (content) => {
@@ -88,6 +89,7 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
     });
   
     setSerializedContent(mdxSource);
+    console.log('ToC:', tocData);
     setToc(tocData); // ToC 상태 업데이트
   };
 
@@ -106,7 +108,7 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
     }
   };
 
-  const handleInputChange = async (field, value) => {
+  const handleInputChange = (field, value) => {
     if (field === "title") {
       const newTitle = value;
       setTitle(newTitle);
@@ -118,7 +120,6 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
       const newContent = value;
       setContent(newContent);
       handleSave(title, newContent);
-      serializeContent(newContent);
       if (onContentChange && pageId) {
         onContentChange(pageId, newContent);
       }
