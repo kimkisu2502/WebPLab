@@ -163,10 +163,11 @@ export const getComments = async (noteId) => {
 
 export const createComment = async (formData) => {
     const noteId = parseInt(formData.get('noteId'), 10);
-    const contents = formData.get('contents');
-    const data = {noteId, contents};
+    const content = formData.get('contents');
+    const data = {noteId, content};
     try{
-        await db.Comment.create({data});
+        const Comment = await db.Comment.create({data});
+        return Comment;
     } catch(error){
         return {error: error.message};
     }

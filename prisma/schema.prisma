@@ -15,7 +15,6 @@ model User {
   userId   String  @unique
   password String
   Notes    Note[]
-  Comments Comment[]
 }
 
 model Note {
@@ -31,8 +30,6 @@ model Note {
 
 model Comment {
   id        Int      @id @default(autoincrement())
-  author    User     @relation(fields: [userId], references: [id])
-  userId    Int
   note      Note     @relation(fields: [noteId], references: [id])
   noteId    Int
   content   String

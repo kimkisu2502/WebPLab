@@ -122,7 +122,7 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
   };
 
   return (
-  <div className="flex flex-grow">
+  <div className="flex flex-grow bg-stone-100">
     <div className="flex justify-center flex-grow m-10">
       {/* 최대 폭을 제한한 컨테이너 */}
       <div className={clsx(
@@ -151,12 +151,12 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
           <input
             id="title"
             type="text"
-            className="w-full text-2xl font-bold focus:outline-none mb-3"
+            className="w-full text-2xl bg-stone-100 font-bold focus:outline-none mb-3"
             value={title}
             readOnly
             spellCheck="false"
           />
-          <div className="w-full h-auto p-2 whitespace-pre-wrap break-words">
+          <div className="w-full h-auto bg-stone-100 p-2 whitespace-pre-wrap break-words">
             <MDXProvider components={components}>
               {serializedContent ? <MDXRemote {...serializedContent} /> : null}
             </MDXProvider>
@@ -167,13 +167,13 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
           <input
             id="title"
             type="text"
-            className="w-full text-2xl font-bold border border-gray-300 focus:outline-none mb-3 p-2"
+            className="w-full text-2xl font-bold bg-stone-100 border border-gray-300 focus:outline-none mb-3 p-2"
             value={title}
             onChange={(e) => handleInputChange("title", e.target.value)}
           />
           <textarea
             id="content"
-            className="w-full min-h-screen border p-2 focus:outline-none"
+            className="w-full min-h-screen bg-stone-100 border p-2 focus:outline-none"
             value={content}
             onChange={(e) => handleInputChange("contents", e.target.value)}
           />

@@ -15,6 +15,7 @@ const Root = ({profile}) => {
   const [pages, setPages] = useState([]);
   const [pagesState, setPagesState] = useState(pages || []);
   const [comments, setComments] = useState([]);
+  const [isFolded, setIsFolded] = useState(false);
   const searchParams = useSearchParams();
   const pageId = parseInt(searchParams.get('id'), 10) || pagesState[0]?.id;
   const router = useRouter();
@@ -25,21 +26,23 @@ const Root = ({profile}) => {
     console.log('useEffect:', isLogin, userId, pageId);
     if (isLogin) {
       const fetchPages = async () => {
-        try {
-          const response = await getPages(userId);
-          console.log('data:', response);
-          setPages(response);
-          setPagesState(response);
-          console.log('pages:', response);
-        } catch (error) {
-          console.error('Failed to fetch pages:', error);
+      try {
+        const response = await getPages(userId);
+        console.log('data:', response);
+        setPages(response);
+        setPagesState(response);
+        console.log('pages:', response);
+        const pageInitId = response[0]?.id;
+        console.log('pageInitId:', pageInitId);
+        if (pageInitId) {
+        router.push('/?id=' + pageInitId);
         }
+      } catch (error) {
+        console.error('Failed to fetch pages:', error);
+      }
       };
       fetchPages();
-      router.push('/');
-      fetchPages();
-    }
-    else{
+    } else {
       router.push('/Login');
     }
   }, [isLogin, userId, router]);
@@ -50,6 +53,7 @@ const Root = ({profile}) => {
         try {
           const response = await getComments(activePage.id);
           setComments(response);
+          setIsFolded(response.length === 0);
         } catch (error) {
           console.error('Failed to fetch comments:', error);
         }
@@ -86,6 +90,13 @@ const Root = ({profile}) => {
     setPagesState((prevPages) => [...prevPages, newPage]);
   };
 
+  const onAddComment = (newComment) => {
+    setComments((prevComments) => [...prevComments, newComment]);
+  };
+
+  const changeFold = () => {
+    setIsFolded(!isFolded);
+  };
 
     return (
       <div className="flex flex-row">
@@ -130,10 +141,12 @@ const Root = ({profile}) => {
             <AddPageButton onAddPage={handleAddPage} />
           </div>
         </div>
-        <Maincontent
+        <Maincontent className="bg-stone-100"
           activePage={activePage} onTitleChange={handleTitleChange} onContentChange={handleContentChange}
         ></Maincontent>
-        <Comment>Comments={comments}</Comment>
+        <Comment 
+          Comments={comments} onAddComment={onAddComment} isFolded={isFolded} changeFold={changeFold}
+        ></Comment>
       </div>
   );
 }
