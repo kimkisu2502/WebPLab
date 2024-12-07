@@ -16,7 +16,6 @@ export const getPages = async (userId) => {
                 userId : id.id,
             },
         });
-        console.log('pages:', pages);
         return pages;
     } catch(error){
         console.log('error on getPages:', error);
@@ -30,7 +29,6 @@ export const createOrUpdatePage = async (formData) => {
     const title = formData.get('title');
     const contents = formData.get('contents');
     const data = {title, contents};
-    console.log(data);
     const result = PageSchema.safeParse(data);
     if(!result.success){
         let errorMessages = "";
@@ -46,7 +44,6 @@ export const createOrUpdatePage = async (formData) => {
             await db.Note.create({data});
         }
         else{
-            console.log("id: ", id);
             await db.Note.update({
                 where: {id},
                 data,
@@ -67,7 +64,6 @@ export const createPage = async (userId) => {
     if (!user) {
       throw new Error('사용자를 찾을 수 없습니다.');
     }
-    console.log('user:', user);
     // User.id를 사용하여 Note 생성
     const newNote = await db.note.create({
       data: {
@@ -99,7 +95,6 @@ export const login = async (formData) => {
     const userId = formData.get('userId');
     const password = formData.get('password');
     const data = {userId, password};
-    console.log(data);
     try{
         const user = await db.User.findFirst({
             where: {
@@ -130,7 +125,6 @@ export const register = async (formData) => {
                 userId,
             },
         });
-        console.log('result:', result);
         if(result){
             throw new Error('이미 존재하는 아이디입니다.');
         }
@@ -138,7 +132,6 @@ export const register = async (formData) => {
         return newUser;
     }
     catch(error){
-        console.log('error on register:', error);
         return {success: false, message: error.message};
     }
 };
