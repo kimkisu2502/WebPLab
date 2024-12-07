@@ -115,13 +115,11 @@ const Root = ({profile}) => {
             <AddPageButton onAddPage={handleAddPage} />
           </div>
         </div>
-        <div className="flex justify-center flex-grow m-10">
-            <Maincontent
-              activePage={activePage} onTitleChange={handleTitleChange} onContentChange={handleContentChange}
-          ></Maincontent>
-        </div>
+        <Maincontent
+          activePage={activePage} onTitleChange={handleTitleChange} onContentChange={handleContentChange}
+        ></Maincontent>
       </div>
-    );
+  );
 }
 
 export default Root;

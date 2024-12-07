@@ -6,8 +6,7 @@ import { MDXProvider } from '@mdx-js/react';
 import { MDXRemote } from 'next-mdx-remote';
 import { serialize } from 'next-mdx-remote/serialize';
 import remarkGfm from 'remark-gfm';
-
-
+import rehypeSlug from 'rehype-slug'; 
 
 const components = {
   h1: (props) => <h1 className="text-4xl font-bold my-4" {...props} />,
@@ -21,27 +20,30 @@ const components = {
   th: (props) => <th className="px-4 py-2 border bg-gray-200" {...props} />,
   td: (props) => <td className="px-4 py-2 border" {...props} />,
   strong: (props) => <strong className="font-bold" {...props} />,
-}
+};
 
 const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [viewMode, setViewMode] = useState(false);
   const [serializedContent, setSerializedContent] = useState(null);
+  const [toc, setToc] = useState([]);
+  const [tocVisible, setTocVisible] = useState(false);
   const pageId = activePage?.id || 0;
 
-  // activePage 변경 시 상태 초기화
   useEffect(() => {
     const initializeContent = async () => {
       if (activePage) {
-        setTitle(activePage.title || ""); // 제목 초기화
-        setContent(activePage.contents || ""); // 내용 초기화
+        setTitle(activePage.title || "");
+        setContent(activePage.contents || "");
         const dmxSource = await serialize(activePage.contents || "", {
           mdxOptions: {
-            remarkPlugins: [remarkGfm], // GFM 지원 추가
-          }
-        }); // 내용 serialize
+            remarkPlugins: [remarkGfm],
+           rehypePlugins: [rehypeSlug],
+          },
+        });
         setSerializedContent(dmxSource);
+        generateToc(dmxSource);
       }
     };
     initializeContent();
@@ -49,9 +51,27 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
 
   const serializeContent = async (content) => {
     const mdxSource = await serialize(content, {
-      mdxOptions: { remarkPlugins: [remarkGfm] }
+      mdxOptions: { remarkPlugins: [remarkGfm],
+        rehypePlugins: [rehypeSlug], },
     });
     setSerializedContent(mdxSource);
+    generateToc(mdxSource);
+  };
+
+  const generateToc = (mdxSource) => {
+    const toc = [];
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(mdxSource.renderedOutput, 'text/html');
+    const headings = doc.querySelectorAll('h1, h2, h3');
+    headings.forEach((heading) => {
+      console.log(heading);
+      toc.push({
+        id: heading.id,
+        text: heading.textContent,
+        level: heading.tagName.toLowerCase(),
+      });
+    });
+    setToc(toc);
   };
 
   const handleSave = async (newTitle, newContent) => {
@@ -88,58 +108,90 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
     }
   };
 
+  const ContentArea = () => (
+    <div className="max-w-[800px] w-full py-32 px-10">
+      <div className="flex justify-end mb-3">
+        <button
+          className="w-14 bg-slate-600 text-white py-2 rounded-md hover:bg-slate-800 transition duration-200"
+          onClick={() => setViewMode(!viewMode)}
+        >
+          {viewMode ? 'edit' : 'view'}
+        </button>
+        <button
+          className="w-14 ml-3 bg-slate-600 text-white py-2 rounded-md hover:bg-slate-800 transition duration-200"
+          onClick={() => setTocVisible((v) => !v)}
+        >
+          toc
+        </button>
+      </div>
+      {viewMode ? (
+        <>
+          <input
+            id="title"
+            type="text"
+            className="w-full text-2xl font-bold focus:outline-none mb-3"
+            value={title}
+            readOnly
+            spellCheck="false"
+          />
+          <div className="w-full h-auto p-2 whitespace-pre-wrap break-words">
+            <MDXProvider components={components}>
+              {serializedContent ? <MDXRemote {...serializedContent} /> : null}
+            </MDXProvider>
+          </div>
+        </>
+      ) : (
+        <>
+          <input
+            id="title"
+            type="text"
+            className="w-full text-2xl font-bold border border-gray-300 focus:outline-none mb-3 p-2"
+            value={title}
+            onChange={(e) => handleInputChange("title", e.target.value)}
+          />
+          <textarea
+            id="content"
+            className="w-full min-h-screen border p-2 focus:outline-none"
+            value={content}
+            onChange={(e) => handleInputChange("contents", e.target.value)}
+          />
+        </>
+      )}
+    </div>
+  );
+
+  const TocArea = () => (
+    <div className="w-60 h-full p-3 bg-stone-200">
+      <h2 className="text-xl font-bold mb-4">Table of Contents</h2>
+      <ul className="list-disc list-inside">
+        {toc.map((item) => (
+          <li
+            key={item.id}
+            className={item.level === 'h1' ? '' : item.level === 'h2' ? 'ml-4' : 'ml-8'}
+          >
+            <a href={`#${item.id}`} className="text-blue-500 hover:underline">
+              {item.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
   return (
-    !viewMode ? (
-      // Edit mode
-      <div className="w-2/3 max-w-screen-lg py-32">
-        <div className="flex justify-end">
-          <button
-            className="w-14 bg-slate-600 text-white py-2 rounded-md hover:bg-slate-800 transition duration-200 mb-3"
-            onClick={() => setViewMode(true)}
-          >
-            view
-          </button>
-        </div>
-        <input
-          id="title"
-          type="text"
-          className="w-full text-2xl font-bold border border-gray-300 focus:outline-none mb-3 p-2"
-          value={title}
-          onChange={(e) => handleInputChange("title", e.target.value)} // 상태 업데이트 및 저장
-        />
-        <textarea
-          id="content"
-          className="w-full h-full border p-2 focus:outline-none"
-          value={content}
-          onChange={(e) => handleInputChange("contents", e.target.value)} // 상태 업데이트 및 저장
-        />
+    <div className="flex w-full h-full justify-center">
+      {/* 최대 폭을 제한한 컨테이너 */}
+      <div className="flex w-full max-w-[1200px] items-start">
+        {/* 왼쪽 공백 영역 */}
+        <div className="w-60" />
+
+        {/* 중앙 컨텐츠 영역 */}
+        <ContentArea />
+
+        {/* 오른쪽 TOC 영역 (없을 때 비워서 레이아웃 유지) */}
+        {tocVisible ? <TocArea /> : <div className="w-60" />}
       </div>
-    ) : (
-      // View mode
-      <div className="w-2/3 max-w-screen-lg py-32">
-        <div className="flex justify-end">
-          <button
-            className="w-14 bg-slate-600 text-white py-2 rounded-md hover:bg-slate-800 transition duration-200 mb-3"
-            onClick={() => setViewMode(false)}
-          >
-            edit
-          </button>
-        </div>
-        <input
-          id="title"
-          type="text"
-          className="w-full text-2xl font-bold focus:outline-none mb-3"
-          value={title}
-          readOnly
-          spellCheck="false"
-        />
-        <div className="w-full h-auto p-2 whitespace-pre-wrap break-words">
-          <MDXProvider components={components}>
-            {serializedContent ? <MDXRemote {...serializedContent}  /> : null}
-          </MDXProvider>
-        </div>
-      </div>
-    )
+    </div>
   );
 };
 
