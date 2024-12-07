@@ -4,9 +4,9 @@ import Image from 'next/image';
 
 import AddPageButton from '@/components/ui/AddPageButton';
 import Maincontent from '@/components/ui/Maincontent';
-import Login from '@/components/ui/Login';
+import Comment from '@/components/ui/Comment';
 import Sidebar from '@/components/ui/Sidebar';
-import {getPages, updateNoteFavorite} from '@/action';
+import {getComments, getPages, updateNoteFavorite} from '@/action';
 import {useState, useEffect} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {useAuth} from '@/components/context/AuthContext';
@@ -14,6 +14,7 @@ import {useAuth} from '@/components/context/AuthContext';
 const Root = ({profile}) => {
   const [pages, setPages] = useState([]);
   const [pagesState, setPagesState] = useState(pages || []);
+  const [comments, setComments] = useState([]);
   const searchParams = useSearchParams();
   const pageId = parseInt(searchParams.get('id'), 10) || pagesState[0]?.id;
   const router = useRouter();
@@ -42,6 +43,20 @@ const Root = ({profile}) => {
       router.push('/Login');
     }
   }, [isLogin, userId, router]);
+
+  useEffect(() => {
+    if (activePage) {
+      const fetchComments = async () => {
+        try {
+          const response = await getComments(activePage.id);
+          setComments(response);
+        } catch (error) {
+          console.error('Failed to fetch comments:', error);
+        }
+      };
+      fetchComments();
+    }
+  }, [activePage]);
 
   const updateFavorite = (favorite, id) => {
     updateNoteFavorite(favorite, id);
@@ -118,6 +133,7 @@ const Root = ({profile}) => {
         <Maincontent
           activePage={activePage} onTitleChange={handleTitleChange} onContentChange={handleContentChange}
         ></Maincontent>
+        <Comment>Comments={comments}</Comment>
       </div>
   );
 }

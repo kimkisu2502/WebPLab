@@ -147,3 +147,27 @@ export const updateNoteFavorite = async (favorite, id) => {
         return {error: error.message};
     }
 }
+
+export const getComments = async (noteId) => {
+    try{
+        const comments = await db.Comment.findMany({
+            where: {
+                noteId,
+            },
+        });
+        return comments;
+    } catch(error){
+        return {error: error.message};
+    }
+}
+
+export const createComment = async (formData) => {
+    const noteId = parseInt(formData.get('noteId'), 10);
+    const contents = formData.get('contents');
+    const data = {noteId, contents};
+    try{
+        await db.Comment.create({data});
+    } catch(error){
+        return {error: error.message};
+    }
+}

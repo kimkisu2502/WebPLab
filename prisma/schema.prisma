@@ -11,19 +11,30 @@ datasource db {
 }
 
 model User {
-  id   Int  @id @default(autoincrement())
-  userId  String @unique
+  id       Int     @id @default(autoincrement())
+  userId   String  @unique
   password String
-  Notes  Note[]
+  Notes    Note[]
+  Comments Comment[]
 }
 
 model Note {
-  id    Int  @id  @default(autoincrement())
-  author  User @relation(fields: [userId],references: id)
-  userId  Int 
-  title String
-  createdAt DateTime @default(now())
-  contents String
-  favorite Boolean @default(false)
+  id        Int       @id @default(autoincrement())
+  author    User      @relation(fields: [userId], references: [id])
+  userId    Int
+  title     String
+  createdAt DateTime  @default(now())
+  contents  String
+  favorite  Boolean   @default(false)
+  Comments  Comment[]
 }
 
+model Comment {
+  id        Int      @id @default(autoincrement())
+  author    User     @relation(fields: [userId], references: [id])
+  userId    Int
+  note      Note     @relation(fields: [noteId], references: [id])
+  noteId    Int
+  content   String
+  createdAt DateTime @default(now())
+}

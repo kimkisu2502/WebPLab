@@ -185,7 +185,7 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
       
     </div>
       {/* 오른쪽 TOC 영역 (없을 때 비워서 레이아웃 유지) */}
-      {tocVisible ? <div className="w-60 h-full p-3 bg-stone-200">
+      {tocVisible ? <div className="w-60 h-full p-3 bg-stone-200 border-r-2 border-stone-400">
       <h2 className="text-xl font-bold mb-4">Table of Contents</h2>
       <div>
         {title}
