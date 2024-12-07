@@ -7,6 +7,7 @@ import { MDXRemote } from 'next-mdx-remote';
 import { serialize } from 'next-mdx-remote/serialize';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug'; 
+import clsx from 'clsx';
 
 const components = {
   h1: (props) => <h1 className="text-4xl font-bold my-4" {...props} />,
@@ -109,7 +110,7 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
   };
 
   const ContentArea = () => (
-    <div className="max-w-[800px] w-full py-32 px-10">
+    <div className="w-full py-32 px-10">
       <div className="flex justify-end mb-3">
         <button
           className="w-14 bg-slate-600 text-white py-2 rounded-md hover:bg-slate-800 transition duration-200"
@@ -179,18 +180,22 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
   );
 
   return (
-    <div className="flex w-full h-full justify-center">
+  <div className="flex flex-grow">
+    <div className="flex justify-center flex-grow m-10">
       {/* 최대 폭을 제한한 컨테이너 */}
-      <div className="flex w-full max-w-[1200px] items-start">
-        {/* 왼쪽 공백 영역 */}
-        <div className="w-60" />
-
+      <div className={clsx(
+        "flex items-center" ,
+        tocVisible ? ' w7/12' : ' w-7/12'
+      )}
+      >
         {/* 중앙 컨텐츠 영역 */}
         <ContentArea />
-
-        {/* 오른쪽 TOC 영역 (없을 때 비워서 레이아웃 유지) */}
-        {tocVisible ? <TocArea /> : <div className="w-60" />}
       </div>
+
+      
+    </div>
+      {/* 오른쪽 TOC 영역 (없을 때 비워서 레이아웃 유지) */}
+      {tocVisible ? <TocArea /> : null}
     </div>
   );
 };
