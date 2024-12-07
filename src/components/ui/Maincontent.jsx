@@ -121,8 +121,17 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
     }
   };
 
-  const ContentArea = () => (
-    <div className="w-full py-32 px-10">
+  return (
+  <div className="flex flex-grow">
+    <div className="flex justify-center flex-grow m-10">
+      {/* 최대 폭을 제한한 컨테이너 */}
+      <div className={clsx(
+        "flex items-center" ,
+        tocVisible ? ' w7/12' : ' w-7/12'
+      )}
+      >
+        {/* 중앙 컨텐츠 영역 */}
+        <div className="w-full py-32 px-10">
       <div className="flex justify-end mb-3">
         <button
           className="w-14 bg-slate-600 text-white py-2 rounded-md hover:bg-slate-800 transition duration-200"
@@ -171,10 +180,12 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
         </>
       )}
     </div>
-  );
+      </div>
 
-  const TocArea = () => (
-    <div className="w-60 h-full p-3 bg-stone-200">
+      
+    </div>
+      {/* 오른쪽 TOC 영역 (없을 때 비워서 레이아웃 유지) */}
+      {tocVisible ? <div className="w-60 h-full p-3 bg-stone-200">
       <h2 className="text-xl font-bold mb-4">Table of Contents</h2>
       <div>
         {title}
@@ -191,26 +202,7 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
           </li>
         ))}
       </ul>
-    </div>
-  );
-
-  return (
-  <div className="flex flex-grow">
-    <div className="flex justify-center flex-grow m-10">
-      {/* 최대 폭을 제한한 컨테이너 */}
-      <div className={clsx(
-        "flex items-center" ,
-        tocVisible ? ' w7/12' : ' w-7/12'
-      )}
-      >
-        {/* 중앙 컨텐츠 영역 */}
-        <ContentArea />
-      </div>
-
-      
-    </div>
-      {/* 오른쪽 TOC 영역 (없을 때 비워서 레이아웃 유지) */}
-      {tocVisible ? <TocArea /> : null}
+    </div> : null}
     </div>
   );
 };
