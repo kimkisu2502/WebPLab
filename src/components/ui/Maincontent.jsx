@@ -36,19 +36,14 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
   useEffect(() => {
     const initializeContent = async () => {
       if (activePage) {
+        console.log("sothing is wrong", activePage);
         setTitle(activePage.title || "");
         setContent(activePage.contents || "");
-        const dmxSource = await serialize(activePage.contents || "", {
-          mdxOptions: {
-            remarkPlugins: [remarkGfm],
-           rehypePlugins: [rehypeSlug],
-          },
-        });
-        setSerializedContent(dmxSource);
+        serializeContent(activePage.contents || "");
       }
     };
     initializeContent();
-    serializeContent(content);
+    console.log("aowsejnfoawegn", activePage);
   }, [activePage]);
 
   const serializeContent = async (content) => {
@@ -108,7 +103,7 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
     }
   };
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = async (field, value) => {
     if (field === "title") {
       const newTitle = value;
       setTitle(newTitle);
@@ -181,6 +176,9 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
   const TocArea = () => (
     <div className="w-60 h-full p-3 bg-stone-200">
       <h2 className="text-xl font-bold mb-4">Table of Contents</h2>
+      <div>
+        {title}
+      </div>
       <ul className="list-disc list-inside">
         {toc.map((item) => (
           <li
