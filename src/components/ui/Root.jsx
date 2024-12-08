@@ -141,7 +141,7 @@ const Root = ({profile}) => {
             <AddPageButton onAddPage={handleAddPage} />
           </div>
         </div>
-        <Maincontent className="bg-stone-100"
+        <Maincontent
           activePage={activePage} onTitleChange={handleTitleChange} onContentChange={handleContentChange}
         ></Maincontent>
         <Comment 

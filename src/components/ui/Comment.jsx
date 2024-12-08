@@ -34,41 +34,49 @@ const Comment = ({ Comments, onAddComment, isFolded, changeFold }) => {
     }
 
     return (
-    <div className={clsx("w-60 p-3 bg-stone-200", { "h-full": isFolded, "min-h-screen": !isFolded})}>
-      <h2 
-        className="text-xl h-8 font-bold mb-4"
-        onClick={changeFold}
-      >Comments</h2>
-      {isFolded ? null : (
-    <div>
         <div>
-            {Comments?.length > 0 ? (
-                Comments.map((comment) => (
-                    <CommentEntry
-                        key={comment.id}
-                        comment={comment}
+            <div className={clsx("w-60 p-3 bg-stone-200", { "h-12": isFolded, "min-h-screen": !isFolded})}>
+            <h2 
+                className="text-xl h-8 font-bold mb-4"
+                onClick={changeFold}
+            >Comments</h2>
+            {isFolded ? null : (
+            <div>
+                <div>
+                    {Comments?.length > 0 ? (
+                        Comments.map((comment) => (
+                            <CommentEntry
+                                key={comment.id}
+                                comment={comment}
+                            />
+                        ))
+                        ):
+                        null
+                    }
+                </div>
+                <div>
+                    <input
+                        id="commentContent"
+                        className="w-full min-h-20 border p-2 focus:outline-none"
+                        placeholder="댓글을 입력하세요."
                     />
-                ))
-                ):
-                null
-            }
+                    <button
+                        onClick={createNewComment}
+                        className="w-full bg-zinc-600 text-white py-2 mt-2"
+                        >
+                            댓글 추가
+                        </button>
+                </div>
+                </div>
+            )}
         </div>
-        <div>
-            <input
-                id="commentContent"
-                className="w-full min-h-20 border p-2 focus:outline-none"
-                placeholder="댓글을 입력하세요."
-            />
-            <button
-                onClick={createNewComment}
-                className="w-full bg-zinc-600 text-white py-2 mt-2"
-                >
-                    댓글 추가
-                </button>
+        {isFolded ? 
+        (
+            <div className='bg-stone-100 min-h-screen'>
+                
+                </div>
+        ) : null}
         </div>
-        </div>
-      )}
-</div>
     );
 };
 
