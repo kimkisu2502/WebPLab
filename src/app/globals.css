@@ -19,3 +19,27 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+/* light 테마 */
+body.light {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+/* dark 테마 */
+body.dark {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* 폰트 스타일 */
+body.font-sans {
+  font-family: 'Arial', sans-serif;
+}
+
+body.font-serif {
+  font-family: 'Georgia', serif;
+}
+
+body.font-mono {
+  font-family: 'Courier New', monospace;
+}

@@ -122,11 +122,11 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
   };
 
   return (
-  <div className="flex flex-grow bg-stone-100">
+  <div className="flex flex-grow bg-stone-100 dark:bg-stone-700">
     <div className="flex justify-center flex-grow m-10">
       {/* 최대 폭을 제한한 컨테이너 */}
       <div className={clsx(
-        "flex items-center" ,
+        "flex " ,
         tocVisible ? ' w7/12' : ' w-7/12'
       )}
       >
@@ -151,12 +151,12 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
           <input
             id="title"
             type="text"
-            className="w-full text-2xl bg-stone-100 font-bold focus:outline-none mb-3"
+            className="w-full text-2xl bg-stone-100 dark:bg-stone-700 font-bold focus:outline-none mb-3"
             value={title}
             readOnly
             spellCheck="false"
           />
-          <div className="w-full h-auto bg-stone-100 p-2 whitespace-pre-wrap break-words">
+          <div className="w-full h-auto bg-stone-100 dark:bg-stone-700 p-2 whitespace-pre-wrap break-words">
             <MDXProvider components={components}>
               {serializedContent ? <MDXRemote {...serializedContent} /> : null}
             </MDXProvider>
@@ -167,13 +167,13 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
           <input
             id="title"
             type="text"
-            className="w-full text-2xl font-bold bg-stone-100 border border-gray-300 focus:outline-none mb-3 p-2"
+            className="w-full text-2xl font-bold bg-stone-100 dark:bg-stone-700 border border-gray-300 focus:outline-none mb-3 p-2"
             value={title}
             onChange={(e) => handleInputChange("title", e.target.value)}
           />
           <textarea
             id="content"
-            className="w-full min-h-screen bg-stone-100 border p-2 focus:outline-none"
+            className="w-full min-h-screen bg-stone-100 dark:bg-stone-700 border p-2 focus:outline-none"
             value={content}
             onChange={(e) => handleInputChange("contents", e.target.value)}
           />
@@ -185,7 +185,7 @@ const Maincontent = ({ activePage, onTitleChange, onContentChange }) => {
       
     </div>
       {/* 오른쪽 TOC 영역 (없을 때 비워서 레이아웃 유지) */}
-      {tocVisible ? <div className="w-60 h-full p-3 bg-stone-200 border-r-2 border-stone-400">
+      {tocVisible ? <div className="w-60 h-full p-3 bg-stone-200 dark:bg-stone-800 border-r-2 border-stone-400 dark:border-stone-900">
       <h2 className="text-xl font-bold mb-4">Table of Contents</h2>
       <div>
         {title}

@@ -14,7 +14,6 @@ const CommentEntry = ({ comment }) => {
         }
     }
     , [comment]);
-
     return (
         isthere?
         <div className="mb-4">
@@ -25,7 +24,7 @@ const CommentEntry = ({ comment }) => {
                 <span className="text-sm flex">{comment.content}</span>
                 <svg
                     role="graphics-symbol"
-                    className={clsx("w-5 h-5 mt-0.5 mr-1  text-stone-400 hover:text-red-500 cursor-pointer transition-colors duration-200 ml-auto"
+                    className={clsx("w-5 h-5 mt-0.5 mr-1 text-stone-400 hover:text-red-500 cursor-pointer transition-colors duration-200 ml-auto"
                     , isthere && 'text-stone-500'
                     )}
                     viewBox="0 0 24 24"
@@ -35,6 +34,7 @@ const CommentEntry = ({ comment }) => {
                     deleteComment(comment.id);
                     setIsthere(false);
                     }}
+                    style={{ minWidth: '20px', minHeight: '20px' }}
                 >
                     <path
                     d="M6 6 L18 18 M18 6 L6 18"

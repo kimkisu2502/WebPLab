@@ -35,7 +35,7 @@ const Comment = ({ Comments, onAddComment, isFolded, changeFold }) => {
 
     return (
         <div>
-            <div className={clsx("w-60 p-3 bg-stone-200", { "h-12": isFolded, "min-h-screen": !isFolded})}>
+            <div className={clsx("w-60 p-3 bg-stone-200 dark:bg-stone-800 rounded-md", { "h-12": isFolded, "min-h-screen": !isFolded})}>
             <h2 
                 className="text-xl h-8 font-bold mb-4"
                 onClick={changeFold}
@@ -70,12 +70,7 @@ const Comment = ({ Comments, onAddComment, isFolded, changeFold }) => {
                 </div>
             )}
         </div>
-        {isFolded ? 
-        (
-            <div className='bg-stone-100 min-h-screen'>
-                
-                </div>
-        ) : null}
+        <div className='bg-stone-100 dark:bg-stone-700 min-h-screen'></div>
         </div>
     );
 };
