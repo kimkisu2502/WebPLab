@@ -2,6 +2,8 @@
 
 import db from '@/db';
 import {PageSchema} from '@/types';
+import {promises as fs} from 'fs';
+import path from 'path';
 
 
 export const getPages = async (userId) => {
@@ -182,3 +184,32 @@ export const deleteComment = async (id) => {
         return {error: error.message};
     }
 }
+
+export const uploadProfileImage = async (formData) => {
+    const userId = formData.get('userId');
+    const file = formData.get('file');
+    const base64Data = file.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    try {
+        const uploadsDir = path.join(process.cwd(), 'public/uploads');
+        await fs.mkdir(uploadsDir, { recursive: true });
+
+        const fileName = `${userId}-${Date.now()}.png`;
+        const filePath = path.join(uploadsDir, fileName);
+
+        await fs.writeFile(filePath, buffer);
+
+        const imageUrl = `/uploads/${fileName}`;
+
+        const user = await db.User.update({
+            where: { userId },
+            data: { imageUrl },
+        });
+
+        return { success: true, imageUrl };
+    } catch (error) {
+        console.log('Error uploading profile image:', error);
+        return { success: false, error: error.message };
+    }
+};

@@ -57,12 +57,12 @@ const Comment = ({ Comments, onAddComment, isFolded, changeFold }) => {
                 <div>
                     <input
                         id="commentContent"
-                        className="w-full min-h-20 border p-2 focus:outline-none"
+                        className="w-full min-h-20 border p-2 focus:outline-none dark:text-black"
                         placeholder="댓글을 입력하세요."
                     />
                     <button
                         onClick={createNewComment}
-                        className="w-full bg-zinc-600 text-white py-2 mt-2"
+                        className="w-full bg-zinc-600 text-white py-2 mt-2 "
                         >
                             댓글 추가
                         </button>

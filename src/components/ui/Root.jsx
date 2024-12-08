@@ -6,7 +6,7 @@ import AddPageButton from '@/components/ui/AddPageButton';
 import Maincontent from '@/components/ui/Maincontent';
 import Comment from '@/components/ui/Comment';
 import Sidebar from '@/components/ui/Sidebar';
-import {getComments, getPages, updateNoteFavorite} from '@/action';
+import {getComments, getPages, updateNoteFavorite, uploadProfileImage} from '@/action';
 import {useState, useEffect} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {useAuth} from '@/components/context/AuthContext';
@@ -94,7 +94,31 @@ const SettingsPanel = ({ currentTheme, currentFont, onChangeTheme, onChangeFont 
   );
 };
 
+const handleUpload = async (e) => {
+  const file = e.target.files[0];
+  const reader = new FileReader();
+
+  reader.onloadend = async () => {
+      const formData = new FormData();
+      formData.append('userId', currentUserId); // 현재 사용자 ID
+      formData.append('file', reader.result); // Base64 데이터
+
+      const res = await uploadProfileImage(formData);
+
+      const data = await res.json();
+      if (data.success) {
+          console.log('Profile image uploaded successfully:', data.imageUrl);
+      } else {
+          console.error('Error uploading profile image:', data.error);
+      }
+  };
+
+  reader.readAsDataURL(file);
+};
+
 const Root = ({profile}) => {
+  const [isUploading, setIsUploading] = useState(false); // 업로드 상태 추가
+  const [profileImage, setProfileImage] = useState(profile); // 프로필 이미지 상태
   const [pages, setPages] = useState([]);
   const [pagesState, setPagesState] = useState(pages || []);
   const [comments, setComments] = useState([]);
@@ -210,7 +234,13 @@ const Root = ({profile}) => {
       <div className="flex flex-row">
         <div className="w-60 min-h-screen justify-center p-3 bg-stone-200 dark:bg-stone-700">
           <div className="flex justify-between items-center mb-5">
-            <span className="flex text justify-between text-m py-1 px-3 font-bold h-8 my-1">
+            <span className="flex text justify-between text-m py-1 px-3 font-bold h-8 my-1"
+                  onClick={
+                    () => {setIsUploading(!isUploading);
+                    console.log('isUploading:', isUploading);
+                    }
+                  }
+                  >
               <Image src={profile} alt="Profile" className="flex w-8 h-8 rounded-lg mr-1" />
               {userId ? `${userId}의 ...` : '비정상적인 접근입니다.'}
             </span>
