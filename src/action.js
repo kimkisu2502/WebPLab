@@ -188,10 +188,24 @@ export const deleteComment = async (id) => {
 export const uploadProfileImage = async (formData) => {
     const userId = formData.get('userId');
     const file = formData.get('file');
-    const base64Data = file.replace(/^data:image\/\w+;base64,/, '');
-    const buffer = Buffer.from(base64Data, 'base64');
+    console.log('uploadProfileImage:', userId, file);
 
     try {
+
+        const user = await db.User.findUnique({
+            where: { userId },
+        });
+        if (user.imageUrl) {
+            const existingFilePath = path.join(process.cwd(), 'public', user.imageUrl);
+            try {
+                await fs.unlink(existingFilePath); // 파일 삭제
+            } catch (error) {
+                console.warn(`Could not delete file: ${existingFilePath}. It might not exist.`);
+            }
+        }
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
         const uploadsDir = path.join(process.cwd(), 'public/uploads');
         await fs.mkdir(uploadsDir, { recursive: true });
 
@@ -202,7 +216,7 @@ export const uploadProfileImage = async (formData) => {
 
         const imageUrl = `/uploads/${fileName}`;
 
-        const user = await db.User.update({
+        const newUser = await db.User.update({
             where: { userId },
             data: { imageUrl },
         });
@@ -211,5 +225,27 @@ export const uploadProfileImage = async (formData) => {
     } catch (error) {
         console.log('Error uploading profile image:', error);
         return { success: false, error: error.message };
+    }
+};
+
+
+export const getProfileImage = async (userId) => {
+    try {
+        // 데이터베이스에서 사용자 정보 가져오기
+        const user = await db.User.findUnique({
+            where: { userId },
+        });
+
+        if (!user || !user.imageUrl) {
+            throw new Error('Profile image not found for the user.');
+        }
+
+        // 프로필 이미지 경로 구성
+        const profileImagePath = path.join('/uploads', path.basename(user.imageUrl));
+
+        return { success: true, profileImagePath };
+    } catch (error) {
+        console.error('Error fetching profile image:', error);
+        return { success: false, error: error.message || 'Unknown error occurred' };
     }
 };

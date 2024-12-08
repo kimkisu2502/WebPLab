@@ -5,7 +5,7 @@ import { deletePage } from '@/action';
 import { act, useEffect, useState } from 'react';
 import clsx from 'clsx';
 
-const SidebarRow = ({page, activePage, updateFavorite}) => {
+const SidebarRow = ({page, activePage, updateFavorite, isUploading}) => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [isthere, setIsthere] = useState(true);
@@ -35,6 +35,7 @@ const SidebarRow = ({page, activePage, updateFavorite}) => {
         const newSearchParams = new URLSearchParams(searchParams);
         newSearchParams.set('id', page.id);
         const newPath = `/?${newSearchParams.toString()}`;
+        isUploading(false);
         router.push(newPath);
       }}
       >

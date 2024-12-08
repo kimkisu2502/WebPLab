@@ -7,7 +7,7 @@ import Root from '@/components/ui/Root';
 export default async function Home({ searchParams }) {  
 
   return (
-    <Root profile={profile}
+    <Root defaultProfile={profile}
 >
     </Root>
   );

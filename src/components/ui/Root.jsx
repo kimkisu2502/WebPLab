@@ -6,11 +6,12 @@ import AddPageButton from '@/components/ui/AddPageButton';
 import Maincontent from '@/components/ui/Maincontent';
 import Comment from '@/components/ui/Comment';
 import Sidebar from '@/components/ui/Sidebar';
-import {getComments, getPages, updateNoteFavorite, uploadProfileImage} from '@/action';
+import {getComments, getPages, updateNoteFavorite, uploadProfileImage, getProfileImage} from '@/action';
 import {useState, useEffect} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {useAuth} from '@/components/context/AuthContext';
 import clsx from 'clsx';
+import { set } from 'zod';
 
 
 const THEME_KEY = 'app_theme';
@@ -94,31 +95,9 @@ const SettingsPanel = ({ currentTheme, currentFont, onChangeTheme, onChangeFont 
   );
 };
 
-const handleUpload = async (e) => {
-  const file = e.target.files[0];
-  const reader = new FileReader();
-
-  reader.onloadend = async () => {
-      const formData = new FormData();
-      formData.append('userId', currentUserId); // 현재 사용자 ID
-      formData.append('file', reader.result); // Base64 데이터
-
-      const res = await uploadProfileImage(formData);
-
-      const data = await res.json();
-      if (data.success) {
-          console.log('Profile image uploaded successfully:', data.imageUrl);
-      } else {
-          console.error('Error uploading profile image:', data.error);
-      }
-  };
-
-  reader.readAsDataURL(file);
-};
-
-const Root = ({profile}) => {
+const Root = ({defaultProfile}) => {
   const [isUploading, setIsUploading] = useState(false); // 업로드 상태 추가
-  const [profileImage, setProfileImage] = useState(profile); // 프로필 이미지 상태
+  const [profileImage, setProfileImage] = useState(defaultProfile);
   const [pages, setPages] = useState([]);
   const [pagesState, setPagesState] = useState(pages || []);
   const [comments, setComments] = useState([]);
@@ -126,6 +105,7 @@ const Root = ({profile}) => {
   const searchParams = useSearchParams();
   const pageId = parseInt(searchParams.get('id'), 10) || pagesState[0]?.id;
   const router = useRouter();
+  const [profileModified, setProfileModified] = useState(false);
   const {isLogin, userId, logoutUser} = useAuth();
 
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || 'light');
@@ -167,6 +147,12 @@ const Root = ({profile}) => {
         if (pageInitId) {
         router.push('/?id=' + pageInitId);
         }
+        const profile = await getProfileImage(userId);
+        if(profile.success === true){
+          const profilePath = profile.profileImagePath;
+
+          setProfileImage(profilePath);
+        }
       } catch (error) {
         console.error('Failed to fetch pages:', error);
       }
@@ -191,6 +177,10 @@ const Root = ({profile}) => {
       fetchComments();
     }
   }, [activePage]);
+
+  useEffect(() => {
+    
+  }, [profileModified]);
 
   const updateFavorite = (favorite, id) => {
     updateNoteFavorite(favorite, id);
@@ -228,6 +218,7 @@ const Root = ({profile}) => {
     setIsFolded(!isFolded);
   };
 
+
     return (
     <div>
     {!showSettings && (
@@ -237,11 +228,13 @@ const Root = ({profile}) => {
             <span className="flex text justify-between text-m py-1 px-3 font-bold h-8 my-1"
                   onClick={
                     () => {setIsUploading(!isUploading);
-                    console.log('isUploading:', isUploading);
                     }
                   }
                   >
-              <Image src={profile} alt="Profile" className="flex w-8 h-8 rounded-lg mr-1" />
+              <Image src={profileImage} alt="Profile" className="flex w-8 h-8 rounded-lg mr-1"width={400} // 이미지의 폭
+                    height={400} // 이미지의 높이
+                    placeholder="empty" // 블러 효과를 원하지 않을 경우 
+                    />
               {userId ? `${userId}의 ...` : '비정상적인 접근입니다.'}
             </span>
             <svg role="graphics-symbol" className="flex w-7 h-5 dark:fill-current dark:text-white">
@@ -275,16 +268,49 @@ const Root = ({profile}) => {
           </div>
           <p className="text-gray-600 mb-2 dark:text-white">Private</p>
           <div>
-            <Sidebar pages={pagesState} activePage={activePage} updateFavorite={updateFavorite}/>
-            <AddPageButton onAddPage={handleAddPage} />
+            <Sidebar pages={pagesState} activePage={activePage} updateFavorite={updateFavorite} isUploading={setIsUploading}/>
+            <AddPageButton onAddPage={handleAddPage} isUploading={setIsUploading} />
           </div>
         </div>
+        {!isUploading && (
         <Maincontent
           activePage={activePage} onTitleChange={handleTitleChange} onContentChange={handleContentChange}
-        ></Maincontent>
+        ></Maincontent>)}
+        {!isUploading && (
         <Comment 
           Comments={comments} onAddComment={onAddComment} isFolded={isFolded} changeFold={changeFold}
-        ></Comment>
+        ></Comment>)}
+        {isUploading && (
+          <div className="flex-1 p-6 bg-stone-100">
+          {/* Username */}
+          <h2 className="text-xl font-semibold mb-6">User name</h2>
+          {/* Upload and Change Buttons */}
+          <form className="flex items-center" action={uploadProfileImage}>
+            <input name='userId' type='hidden' value={userId} />
+            <input name="file" type="file" accept="image/*" />
+            <button
+              type="button"
+              className="px-4 py-2 border rounded bg-gray-300 hover:bg-gray-400"
+              onClick={async (e) => {
+                e.preventDefault();
+                try {
+                  const response = await uploadProfileImage(new FormData(e.target.form));
+                  if (response.success) {
+                    const profileResponse = await getProfileImage(userId);
+                    if (profileResponse.success) {
+                      setProfileImage(profileResponse.profileImagePath); // 프로필 이미지 업데이트
+                    }
+                  }
+                } catch (error) {
+                  console.error('Failed to upload profile image:', error);
+                }
+              }}
+            >
+              Change
+            </button>
+          </form>
+        </div>
+        )}
         <button
         onClick={() => setShowSettings(showSettings => !showSettings)}
         className="absolute top-2 right-4 bg-stone-400 text-white p-2 rounded hover:bg-stone-500"
