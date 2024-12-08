@@ -172,3 +172,13 @@ export const createComment = async (formData) => {
         return {error: error.message};
     }
 }
+
+export const deleteComment = async (id) => {
+    try{
+        await db.Comment.delete({
+            where: {id},
+        });
+    } catch(error){
+        return {error: error.message};
+    }
+}
